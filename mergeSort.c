@@ -1,5 +1,5 @@
 #include "libsTrabalho.h"
-void intercalar(float **A, int e, int m, int d, float **Aux)
+void intercalar(double **A, int e, int m, int d, double **Aux)
 {
     int i, j, posi;
     i = e;
@@ -41,7 +41,7 @@ void intercalar(float **A, int e, int m, int d, float **Aux)
 }
 
 /**/
-void mergeSort(float **A, int e, int d, float **Aux)
+void mergeSort(double **A, int e, int d, double **Aux)
 {
     if (e < d)
     {

@@ -32,10 +32,13 @@ int main(int argc, char *argv[])
    start = clock();
 
    int first, second;
-   distanciaMinimaSH(mat, lin, &first, &second);
+   double minorDistance;
+   distanciaMinimaSH(mat, lin, &first, &second, &minorDistance);
+
    end = clock();
    elapsed_time = (end - start) / (double)CLOCKS_PER_SEC;
 
+   printf("Tempo decorrido: %lf Distancia Minima: %lf Pontos no plano x1: %lf y1: %lf x2:%lf y2:%lf");
    free(nomeArqFisico);
    desalocaMatriz(mat, lin, col);
 
