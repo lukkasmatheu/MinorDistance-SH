@@ -229,7 +229,7 @@ void PrimMST(struct Graph *graph)
     for (int v = 1; v < V; ++v)
     {
         parent[v] = -1;
-        key[v] = INT_MAX;
+        key[v] = 9999999;
         minHeap->array[v] = newMinHeapNode(v, key[v]);
         minHeap->pos[v] = v;
     }

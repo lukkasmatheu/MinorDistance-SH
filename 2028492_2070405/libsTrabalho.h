@@ -15,7 +15,14 @@ Julio Cesar Rogacheski
 #include <time.h>
 #include <math.h>
 
-/*Estrutura de lista em BP */
+
+#define BRANCO 0
+#define CINZA 1
+#define PRETO 2
+#define NIL -1
+#define MAXVALUE 154549464846
+
+/*Estruturas de lista em BP */
 typedef struct _DFS
 {
   int cor;
@@ -23,6 +30,22 @@ typedef struct _DFS
   int d;
   int f;
 } DFS;
+
+typedef struct MinHeapNode
+{
+    int v;
+    int key;
+}MinHeapNode;
+
+// Structure to represent a min heap
+typedef struct MinHeap
+{
+    int size;     // Number of heap nodes present currently
+    int capacity; // Capacity of min heap
+    int *pos;     // This is needed for decreaseKey()
+    struct MinHeapNode **array;
+}MinHeap;
+
 
 /*Estrutura para um nó em uma lista encadeada: */
 typedef struct noA
@@ -42,15 +65,20 @@ typedef struct grafoA
 
 double distancia(int **mat, int x1, int x2);
 void imprimir(int **A, int tamanho);
-double **alocaMatriz(int lin, int col);
+int **alocaMatriz(int lin, int col);
 char *alocaString(int size);
-double **copiaMatriz(int **mat, int lin, int col);
+int **copiaMatriz(int **mat, int lin, int col);
 void desalocaMatriz(int **mat, int lin, int col);
-int **leArquivo(int *nomeArqEntrada, int *lin, int *col);
+int **leArquivo(char *nomeArqEntrada, int *lin, int *col);
 GrafoA *preencher_grafo(int **mat, int tamanho);
 void Busca_Profundidade(GrafoA *G);
 void Caminho_DFS(int u, DFS *V);
 void DFS_Visit(GrafoA *G, int s, DFS *V, int *tempo);
 void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat);
 GrafoA *criar_grafo_adj(int tamanho);
+void liberar_grafo_adj(GrafoA *G);
+void imprimir_grafo_adj(GrafoA *G);
+void Prim(GrafoA *G);
+void printArr(int *arr, int n);
+
 #endif

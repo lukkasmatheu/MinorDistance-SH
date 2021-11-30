@@ -8,7 +8,7 @@ Julio Cesar Rogacheski
 
 #include "libsTrabalho.h"
 
-int **leArquivo(int *nomeArqEntrada, int *lin, int *col)
+int **leArquivo(char *nomeArqEntrada, int *lin, int *col)
 {
     int **mat = NULL;
     int i, j;

@@ -1,10 +1,5 @@
 #include "libsTrabalho.h"
 
-#define BRANCO 0
-#define CINZA 1
-#define PRETO 2
-#define NIL -1
-
 /*Função para criar um grafo com lista de adjacências.*/
 GrafoA *criar_grafo_adj(int tamanho)
 {
@@ -46,12 +41,74 @@ void imprimir_grafo_adj(GrafoA *G)
       NoA *v;
       for (v = G->Adj[u]; v != NULL; v = v->next)
       {
-         printf("%2d ", v->id);
+         printf("%2d (peso: %lf) ", v->id,v->peso);
       }
       printf("\n");
    }
    printf("\n");
 }
+
+
+void PrimMST(GrafoA *graph)
+{
+   int size = graph->V;
+    int V = graph->V; // Get the number of vertices in graph
+    int parent[V];    // Array to store constructed MST
+    int key[V];       // Key values used to pick minimum weight edge in cut
+    MinHeap *minHeap = createMinHeap(V);
+    // minHeap represents set E
+   
+
+    // Initialize min heap with all vertices. Key value of
+    // all vertices (except 0th vertex) is initially infinite
+    for (int v = 1; v < V; ++v)
+    {
+        parent[v] = -1;
+        key[v] =  9999999;
+        minHeap->array[v] = newMinHeapNode(v, key[v]);
+        minHeap->pos[v] = v;
+    }
+
+    // Make key value of 0th vertex as 0 so that it
+    // is extracted first
+    key[0] = 0;
+    minHeap->array[0] = newMinHeapNode(0, key[0]);
+    minHeap->pos[0] = 0;
+
+    // Initially size of min heap is equal to V
+    minHeap->size = V;
+    // In the following loop, min heap contains all nodes
+    // not yet added to MST.
+    while (size == 0)
+    {
+        // Extract the vertex with minimum key value
+        struct MinHeapNode *minHeapNode = extractMin(minHeap);
+        int u = minHeapNode->v; // Store the extracted vertex number
+
+        // Traverse through all adjacent vertices of u (the extracted
+        // vertex) and update their key values
+        NoA *pCrawl = graph->Adj[u];
+        while (pCrawl != NULL)
+        {
+            int v = pCrawl->id;
+
+            // If v is not yet included in MST and weight of u-v is
+            // less than key value of v, then update key value and
+            // parent of v
+            if (isInMinHeap(minHeap, v) && pCrawl->peso < key[v])
+            {
+                key[v] = pCrawl->peso;
+                parent[v] = u;
+                decreaseKey(minHeap, v, key[v]);
+            }
+            pCrawl = pCrawl->next;
+        }
+    }
+
+    // print edges of MST
+    printArr(parent, V);
+}
+
 
 void Prim(GrafoA *G)
 {
@@ -61,7 +118,7 @@ void Prim(GrafoA *G)
    pa[0] = 0;
    while (1)
    {
-      int min = INFINITY;
+      int min = MAXVALUE;
       int x, y;
       for (int k = 0; k < G->V; ++k)
       {
@@ -74,7 +131,7 @@ void Prim(GrafoA *G)
                x = k, y = a->id;
             }
       }
-      if (min == INFINITY)
+      if (min == MAXVALUE)
          break;
       // A
       pa[y] = x;
@@ -92,6 +149,7 @@ void printArr(int *arr, int n)
 void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
 {
    G->E++;
+   double pesoAresta = distancia(mat, u, v);
    NoA *aux, *ultimo = NULL;
    for (aux = G->Adj[u]; aux != NULL; aux = aux->next)
    {
@@ -104,10 +162,11 @@ void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
    }
    NoA *novo = (NoA *)malloc(sizeof(NoA));
    novo->id = v;
+   novo->peso = pesoAresta;
    novo->next = NULL;
    if (ultimo != NULL)
    {
-      ultimo->peso = distancia(**mat, u, v);
+      printf("U:%d V:%d\n U->V: %lf",u,v, distancia(mat,u,v) );
       ultimo->next = novo;
    }
    else

@@ -10,6 +10,8 @@ Julio Cesar Rogacheski
 
 int main(int argc, char *argv[])
 {
+
+   printf("iniciando");
    clock_t start, end;
    double elapsed_time;
    srand(time(NULL));
@@ -18,14 +20,16 @@ int main(int argc, char *argv[])
    int **mat;
    GrafoA *grafo;
 
+   
+
    if (argc != 2)
    {
       printf("Parametro invalido");
       return 1;
    }
 
-   //Aloca espaço para a string que armazenará o nome do arquivo(imagem) a ser lido, o qual foi
-   //foi recebido como argumento na função main
+   //Aloca espaço para a string que armazenará o nome do arquivo a ser lido
+   //que foi recebido como argumento na função main
    nomeArqFisico = alocaString(20);
    strcpy(nomeArqFisico, argv[1]);
 
@@ -37,6 +41,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   imprimir(mat,lin);
    grafo = preencher_grafo(mat, lin);
 
    start = clock();
