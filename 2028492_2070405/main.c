@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   imprimir(mat,lin);
    grafo = preencher_grafo(mat, lin);
 
    start = clock();

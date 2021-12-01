@@ -20,7 +20,7 @@ Julio Cesar Rogacheski
 #define CINZA 1
 #define PRETO 2
 #define NIL -1
-#define MAXVALUE 154549464846
+#define MAXVALUE 2147483647 // valor maximo possivel para um inteiro
 
 /*Estruturas de lista em BP */
 typedef struct _DFS
@@ -63,6 +63,7 @@ typedef struct grafoA
   NoA **Adj; /* Lista de adjacências. */
 } GrafoA;
 
+
 double distancia(int **mat, int x1, int x2);
 void imprimir(int **A, int tamanho);
 int **alocaMatriz(int lin, int col);
@@ -70,6 +71,7 @@ char *alocaString(int size);
 int **copiaMatriz(int **mat, int lin, int col);
 void desalocaMatriz(int **mat, int lin, int col);
 int **leArquivo(char *nomeArqEntrada, int *lin, int *col);
+
 GrafoA *preencher_grafo(int **mat, int tamanho);
 void Busca_Profundidade(GrafoA *G);
 void Caminho_DFS(int u, DFS *V);
@@ -78,7 +80,20 @@ void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat);
 GrafoA *criar_grafo_adj(int tamanho);
 void liberar_grafo_adj(GrafoA *G);
 void imprimir_grafo_adj(GrafoA *G);
-void Prim(GrafoA *G);
+int *Prim(GrafoA *G);
+void PrimMST(GrafoA *G);
 void printArr(int *arr, int n);
+
+MinHeapNode *createNodeHeap(int value, int key);
+MinHeap *build_min_heap(int capacity);
+void swapMinHeapNode(MinHeapNode **a,MinHeapNode **b);
+void minHeapify(MinHeap *minHeap, int index);
+int isEmpty(MinHeap *minHeap);
+MinHeapNode *extractMin(MinHeap *minHeap);
+void decreaseKey(MinHeap *minHeap, int value, int key);
+int isInMinHeap(MinHeap *minHeap, int value);
+int pai (int i);
+int esquerda (int i);
+int direita (int i);
 
 #endif

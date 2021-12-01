@@ -51,68 +51,63 @@ void imprimir_grafo_adj(GrafoA *G)
 
 void PrimMST(GrafoA *graph)
 {
-   int size = graph->V;
-    int V = graph->V; // Get the number of vertices in graph
-    int parent[V];    // Array to store constructed MST
-    int key[V];       // Key values used to pick minimum weight edge in cut
-    MinHeap *minHeap = createMinHeap(V);
-    // minHeap represents set E
+   int V = graph->V; // Get the number of vertices in graph
+   int parent[V];    // Array to store constructed MST
+   int key[V];       // Key values used to pick minimum weight edge in cut
+   MinHeap *minHeap = build_min_heap(V);
+   key[0] = 0;
+   minHeap->array[0] = createNodeHeap(0, key[0]);
+   minHeap->pos[0] = 0;
+   printf("baby here");
+   for (int v = 1; v < V; ++v)
+   {
+      parent[v] = -1;
+      key[v] =  2147483647;
+      minHeap->array[v] = createNodeHeap(v, key[v]);
+      minHeap->pos[v] = v;
+   }
+
+   // Make key value of 0th vertex as 0 so that it
+   // is extracted first
    
 
-    // Initialize min heap with all vertices. Key value of
-    // all vertices (except 0th vertex) is initially infinite
-    for (int v = 1; v < V; ++v)
-    {
-        parent[v] = -1;
-        key[v] =  9999999;
-        minHeap->array[v] = newMinHeapNode(v, key[v]);
-        minHeap->pos[v] = v;
-    }
+   // Initially size of min heap is equal to V
+   minHeap->size = V;
+   // In the following loop, min heap contains all nodes
+   // not yet added to MST.
+   while (!isEmpty(minHeap))
+   {
+      
+      MinHeapNode *minHeapNode = extractMin(minHeap);
+      int u = minHeapNode->v; // Store the extracted vertex number
 
-    // Make key value of 0th vertex as 0 so that it
-    // is extracted first
-    key[0] = 0;
-    minHeap->array[0] = newMinHeapNode(0, key[0]);
-    minHeap->pos[0] = 0;
+      
+      NoA *pCrawl = graph->Adj[u];
+      while (pCrawl != NULL)
+      {
+         int v = pCrawl->id;
 
-    // Initially size of min heap is equal to V
-    minHeap->size = V;
-    // In the following loop, min heap contains all nodes
-    // not yet added to MST.
-    while (size == 0)
-    {
-        // Extract the vertex with minimum key value
-        struct MinHeapNode *minHeapNode = extractMin(minHeap);
-        int u = minHeapNode->v; // Store the extracted vertex number
+         // If v is not yet included in MST and weight of u-v is
+         // less than key value of v, then update key value and
+         // parent of v
+         if (isInMinHeap(minHeap, v) && pCrawl->peso < key[v])
+         {
+               key[v] = pCrawl->peso;
+               parent[v] = u;
+               decreaseKey(minHeap, v, key[v]);
+         }
+         pCrawl = pCrawl->next;
+      }
+   }
 
-        // Traverse through all adjacent vertices of u (the extracted
-        // vertex) and update their key values
-        NoA *pCrawl = graph->Adj[u];
-        while (pCrawl != NULL)
-        {
-            int v = pCrawl->id;
-
-            // If v is not yet included in MST and weight of u-v is
-            // less than key value of v, then update key value and
-            // parent of v
-            if (isInMinHeap(minHeap, v) && pCrawl->peso < key[v])
-            {
-                key[v] = pCrawl->peso;
-                parent[v] = u;
-                decreaseKey(minHeap, v, key[v]);
-            }
-            pCrawl = pCrawl->next;
-        }
-    }
-
-    // print edges of MST
-    printArr(parent, V);
+   // print edges of MST
+   printArr(parent, V);
 }
 
 
-void Prim(GrafoA *G)
+int *Prim(GrafoA *G)
 {
-   int pa[G->V];
+   int *pa = (int*) malloc (G->V * sizeof(int));
    for (int w = 0; w < G->V; ++w)
       pa[w] = -1;
    pa[0] = 0;
@@ -137,12 +132,15 @@ void Prim(GrafoA *G)
       pa[y] = x;
    }
    printArr(pa, G->V);
+   return pa;
 }
 
 void printArr(int *arr, int n)
 {
-   for (int i = 1; i < n; ++i)
-      printf("%d - %d\n", arr[i], i);
+   GrafoA *G = criar_grafo_adj(n);
+   for (int i = 1; i < n; ++i){
+      printf("%d - %d\n", arr[i], i);   
+   } 
 }
 /*-------------------------------*/
 
@@ -166,7 +164,6 @@ void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
    novo->next = NULL;
    if (ultimo != NULL)
    {
-      printf("U:%d V:%d\n U->V: %lf",u,v, distancia(mat,u,v) );
       ultimo->next = novo;
    }
    else
@@ -181,19 +178,16 @@ void DFS_Visit(GrafoA *G, int s, DFS *V, int *tempo)
    *tempo = (*tempo) + 1;
    V[s].d = *tempo;
    NoA *z;
+   printf("%d \n",s);
    for (z = G->Adj[s]; z != NULL; z = z->next)
    {
       if (V[z->id].cor == BRANCO)
       {
          V[z->id].pai = s;
          DFS_Visit(G, z->id, V, tempo);
-         printf("Aresta de árvore: (%d - %d)\n", s, z->id);
-      }
-      else
-      {
-         printf("Aresta outra:     (%d - %d)\n", s, z->id);
       }
    }
+   printf("\n");
    V[s].cor = PRETO;
    *tempo = (*tempo) + 1;
    V[s].f = *tempo;
@@ -236,6 +230,7 @@ GrafoA *preencher_grafo(int **mat, int tamanho)
 {
 
    GrafoA *G = criar_grafo_adj(tamanho);
+   
    for (int i = 0; i < tamanho; i++)
    {
       for (int j = 0; j < tamanho; j++)
@@ -246,6 +241,13 @@ GrafoA *preencher_grafo(int **mat, int tamanho)
          }
       }
    }
-   imprimir_grafo_adj(G);
+   int *a  = Prim(G);
+   GrafoA *Ga = criar_grafo_adj(tamanho);
+   for (int i = 1; i < tamanho; ++i){
+      adicionar_aresta_grafo_adj(a[i], i, Ga, mat);
+      adicionar_aresta_grafo_adj(i, a[i], Ga, mat);  
+   } 
+   imprimir_grafo_adj(Ga);
+   Busca_Profundidade(Ga);
    return G;
 }

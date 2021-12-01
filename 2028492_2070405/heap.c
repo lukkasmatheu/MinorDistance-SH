@@ -13,17 +13,16 @@ int direita (int i) {
    return (i * 2) + 2;
 }
 
-// A utility function to create a new Min Heap Node
-MinHeapNode *newMinHeapNode(int v, int key)
+MinHeapNode *createNodeHeap(int value, int key)
 {
     MinHeapNode *minHeapNode = (MinHeapNode *) malloc (sizeof(MinHeapNode));
-    minHeapNode->v = v;
+    minHeapNode->v = value;
     minHeapNode->key = key;
     return minHeapNode;
 }
 
 // A utilit function to create a Min Heap
-MinHeap *createMinHeap(int capacity)
+MinHeap *build_min_heap(int capacity)
 {
     MinHeap *minHeap = (MinHeap *) malloc (sizeof(MinHeap));
     minHeap->pos = (int *) malloc (capacity * sizeof(int));
@@ -96,35 +95,34 @@ MinHeapNode *extractMin(MinHeap *minHeap)
     return root;
 }
 
-// Function to decrease key value of a given vertex v. This function
-// uses pos[] of min heap to get the current index of node in min heap
-void decreaseKey(MinHeap *minHeap, int v, int key)
+
+void decreaseKey(MinHeap *minHeap, int value, int key)
 {
     // Get the index of v in  heap array
-    int i = minHeap->pos[v];
+    int i = minHeap->pos[value];
 
     // Get the node and update its key value
     minHeap->array[i]->key = key;
 
     // Travel up while the complete tree is not hepified.
     // This is a O(Logn) loop
-    while (i && minHeap->array[i]->key < minHeap->array[(i - 1) / 2]->key)
+    while (i > 0 && minHeap->array[i]->key < minHeap->array[pai(i)]->key)
     {
         // Swap this node with its parent
-        minHeap->pos[minHeap->array[i]->v] = (i - 1) / 2;
-        minHeap->pos[minHeap->array[(i - 1) / 2]->v] = i;
-        swapMinHeapNode(&minHeap->array[i], &minHeap->array[(i - 1) / 2]);
+        minHeap->pos[minHeap->array[i]->v] = pai(i);
+        minHeap->pos[minHeap->array[pai(i)]->v] = i;
+        swapMinHeapNode(&minHeap->array[i],&minHeap->array[pai(i)]);
 
         // move to parent index
-        i = (i - 1) / 2;
+        i = pai(i);
     }
 }
 
 // A utility function to check if a given vertex
 // 'v' is in min heap or not
-int isInMinHeap(MinHeap *minHeap, int v)
+int isInMinHeap(MinHeap *minHeap, int value)
 {
-    if (minHeap->pos[v] < minHeap->size)
+    if (minHeap->pos[value] < minHeap->size)
         return 1;
     return 0;
 }
