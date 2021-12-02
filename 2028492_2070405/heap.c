@@ -1,5 +1,5 @@
 #include "libsTrabalho.h"
-
+#include "libHeap.h"
 
 int pai (int i) {
    return (i - 1)/2;
@@ -13,6 +13,20 @@ int direita (int i) {
    return (i * 2) + 2;
 }
 
+
+
+MinHeap *build_min_heap(int tamanho){
+    
+    MinHeap *minHeap = (MinHeap *) malloc (sizeof(MinHeap));
+
+    minHeap->pos = (int *) malloc (tamanho * sizeof(int));
+    minHeap->size = 0;
+    minHeap->capacity = tamanho;
+    minHeap->array = (MinHeapNode **) malloc (tamanho * sizeof(MinHeapNode *));
+   
+    return minHeap;
+}
+
 MinHeapNode *createNodeHeap(int value, int key)
 {
     MinHeapNode *minHeapNode = (MinHeapNode *) malloc (sizeof(MinHeapNode));
@@ -20,18 +34,6 @@ MinHeapNode *createNodeHeap(int value, int key)
     minHeapNode->key = key;
     return minHeapNode;
 }
-
-// A utilit function to create a Min Heap
-MinHeap *build_min_heap(int capacity)
-{
-    MinHeap *minHeap = (MinHeap *) malloc (sizeof(MinHeap));
-    minHeap->pos = (int *) malloc (capacity * sizeof(int));
-    minHeap->size = 0;
-    minHeap->capacity = capacity;
-    minHeap->array = (MinHeapNode **) malloc (capacity * sizeof(MinHeapNode *));
-    return minHeap;
-}
-
 
 void swapMinHeapNode(MinHeapNode **a,MinHeapNode **b)
 {
@@ -65,61 +67,49 @@ void minHeapify(MinHeap *minHeap, int index)
     }
 }
 
-// A utility function to check if the given minHeap is ampty or not
+//Verifica se Heap esta vazia
 int isEmpty(MinHeap *minHeap)
 {
-    return minHeap->size == 0;
+    return minHeap->size == 0 ? 1 : 0;
 }
 
-// Standard function to extract minimum node from heap
-MinHeapNode *extractMin(MinHeap *minHeap)
-{
+
+MinHeapNode *extractMin(MinHeap *minHeap){
+    int size = minHeap->size;
     if (isEmpty(minHeap))
         return NULL;
+    
+    //Cabeça do heap
+    MinHeapNode *head = minHeap->array[0];
 
-    // Store the root node
-    MinHeapNode *root = minHeap->array[0];
-
-    // Replace root node with last node
-    MinHeapNode *lastNode = minHeap->array[minHeap->size - 1];
+    MinHeapNode *lastNode = minHeap->array[size - 1];
     minHeap->array[0] = lastNode;
 
-    // Update position of last node
-    minHeap->pos[root->v] = minHeap->size - 1;
+    minHeap->pos[head->v] = size - 1;
     minHeap->pos[lastNode->v] = 0;
 
-    // Reduce heap size and heapify root
-    --minHeap->size;
+    minHeap->size = size - 1;
     minHeapify(minHeap, 0);
 
-    return root;
+    return head;
 }
-
 
 void decreaseKey(MinHeap *minHeap, int value, int key)
 {
-    // Get the index of v in  heap array
     int i = minHeap->pos[value];
 
-    // Get the node and update its key value
     minHeap->array[i]->key = key;
 
-    // Travel up while the complete tree is not hepified.
-    // This is a O(Logn) loop
     while (i > 0 && minHeap->array[i]->key < minHeap->array[pai(i)]->key)
     {
-        // Swap this node with its parent
+
         minHeap->pos[minHeap->array[i]->v] = pai(i);
         minHeap->pos[minHeap->array[pai(i)]->v] = i;
         swapMinHeapNode(&minHeap->array[i],&minHeap->array[pai(i)]);
-
-        // move to parent index
         i = pai(i);
     }
 }
 
-// A utility function to check if a given vertex
-// 'v' is in min heap or not
 int isInMinHeap(MinHeap *minHeap, int value)
 {
     if (minHeap->pos[value] < minHeap->size)

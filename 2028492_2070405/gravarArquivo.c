@@ -1,6 +1,6 @@
 #include "libsTrabalho.h"
 
-int gravarImagem(char *nomeArqSaida, char *tipo, int lin, int col, int maxval, int **mat)
+int gravarArquivo(char *nomeArqSaida, int lin, int col, int **mat)
 {
 
     FILE *arq = fopen(nomeArqSaida, "w+");
@@ -9,7 +9,7 @@ int gravarImagem(char *nomeArqSaida, char *tipo, int lin, int col, int maxval, i
         printf("\nErro ao abrir o arquivo %s\n", nomeArqSaida);
         return 1;
     }
-    fprintf(arq, "%s \n%d %d\n%d\n", tipo, lin, col, maxval);
+
     for (int i = 0; i < lin; i++)
     {
         for (int j = 0; j < col; j++)

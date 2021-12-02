@@ -1,4 +1,5 @@
 #include "libsTrabalho.h"
+#include "libHeap.h"
 
 /*Função para criar um grafo com lista de adjacências.*/
 GrafoA *criar_grafo_adj(int tamanho)
@@ -48,105 +49,69 @@ void imprimir_grafo_adj(GrafoA *G)
    printf("\n");
 }
 
+//Realizar o parse de arvore geradora minima para um grafo
+int **parseAGM(int *v, int size, int **primaryMat){
+   int **matrizSaidaAGM = alocaMatriz((size - 1)*2, 2);
+   int k,i = 0;
+   k++; // k inicia em 1
+   while(k< size && i < (size-1)*2){
+      matrizSaidaAGM[i][0]= primaryMat[v[k]][0];
+      matrizSaidaAGM[i][1]= primaryMat[v[k]][1];
+      matrizSaidaAGM[i+1][0] = primaryMat[k][0];
+      matrizSaidaAGM[i+1][1] = primaryMat[k][1];
+      k++;
+      i= i + 2;
+   }
+   return matrizSaidaAGM;
+}
 
-void PrimMST(GrafoA *graph)
+void PrimMST(GrafoA *graph, int *listAGM)
 {
-   int V = graph->V; // Get the number of vertices in graph
-   int parent[V];    // Array to store constructed MST
-   int key[V];       // Key values used to pick minimum weight edge in cut
-   MinHeap *minHeap = build_min_heap(V);
-   key[0] = 0;
-   minHeap->array[0] = createNodeHeap(0, key[0]);
+
+
+   int size = graph->V;
+   MinHeap *minHeap = build_min_heap(size);// criando a estrutura da fila de prioridade HEAP Min
+   double keyValues[size];
+    //inicializando o Heapminimo pelo vertice de posição 0
+   keyValues[0] = 0;
+   minHeap->array[0] = createNodeHeap(0, keyValues[0]);
    minHeap->pos[0] = 0;
-   printf("baby here");
-   for (int v = 1; v < V; ++v)
-   {
-      parent[v] = -1;
-      key[v] =  2147483647;
-      minHeap->array[v] = createNodeHeap(v, key[v]);
-      minHeap->pos[v] = v;
-   }
-
-   // Make key value of 0th vertex as 0 so that it
-   // is extracted first
    
-
-   // Initially size of min heap is equal to V
-   minHeap->size = V;
-   // In the following loop, min heap contains all nodes
-   // not yet added to MST.
-   while (!isEmpty(minHeap))
+   for (int i = 1; i < size; i++)
    {
-      
+      listAGM[i] = -1;//todos os vertices da arvore iniciam apontando para -1 (vertice inexistente)
+      keyValues[i] =  MAXVALUEFLOAT; //Grupo de chaves de pesos inicia com peso maximo nas arestas
+      minHeap->array[i] = createNodeHeap(i, keyValues[i]);
+      minHeap->pos[i] = i;
+   }
+
+   minHeap->size = size; // Atualiza tamanho do Heap
+
+   while (!isEmpty(minHeap)){
+       
       MinHeapNode *minHeapNode = extractMin(minHeap);
-      int u = minHeapNode->v; // Store the extracted vertex number
-
-      
-      NoA *pCrawl = graph->Adj[u];
-      while (pCrawl != NULL)
+      int u = minHeapNode->v; 
+      NoA *NodeHead = graph->Adj[u];
+      NodeHead = NodeHead->next;
+      for (NoA *v = graph->Adj[u]; v != NULL; v = v->next)
       {
-         int v = pCrawl->id;
-
-         // If v is not yet included in MST and weight of u-v is
-         // less than key value of v, then update key value and
-         // parent of v
-         if (isInMinHeap(minHeap, v) && pCrawl->peso < key[v])
+         if (isInMinHeap(minHeap, v->id) && NodeHead->peso < keyValues[v->id])
          {
-               key[v] = pCrawl->peso;
-               parent[v] = u;
-               decreaseKey(minHeap, v, key[v]);
+               keyValues[v->id] = NodeHead->peso;
+               listAGM[v->id] = u;
+               decreaseKey(minHeap, v->id, keyValues[v->id]);
          }
-         pCrawl = pCrawl->next;
+         
       }
-   }
-
-   // print edges of MST
-   printArr(parent, V);
-}
-
-
-int *Prim(GrafoA *G)
-{
-   int *pa = (int*) malloc (G->V * sizeof(int));
-   for (int w = 0; w < G->V; ++w)
-      pa[w] = -1;
-   pa[0] = 0;
-   while (1)
-   {
-      int min = MAXVALUE;
-      int x, y;
-      for (int k = 0; k < G->V; ++k)
-      {
-         if (pa[k] == -1)
-            continue;
-         for (NoA *a = G->Adj[k]; a != NULL; a = a->next)
-            if (pa[a->id] == -1 && a->peso < min)
-            {
-               min = a->peso;
-               x = k, y = a->id;
-            }
-      }
-      if (min == MAXVALUE)
-         break;
-      // A
-      pa[y] = x;
-   }
-   printArr(pa, G->V);
-   return pa;
-}
-
-void printArr(int *arr, int n)
-{
-   GrafoA *G = criar_grafo_adj(n);
-   for (int i = 1; i < n; ++i){
-      printf("%d - %d\n", arr[i], i);   
    } 
+  
 }
-/*-------------------------------*/
+ 
+/*Adiciona uma Aresta ligando os vertices u e v pela lista de adjacencia de u, adiciona o peso da aresta ,e adiciona esse novo nó a lista */
 
 void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
 {
-   G->E++;
+   G->E++;// incrementa o numero de arestas
    double pesoAresta = distancia(mat, u, v);
    NoA *aux, *ultimo = NULL;
    for (aux = G->Adj[u]; aux != NULL; aux = aux->next)
@@ -158,6 +123,7 @@ void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
       }
       ultimo = aux;
    }
+   //Cria um novo nó adjacente
    NoA *novo = (NoA *)malloc(sizeof(NoA));
    novo->id = v;
    novo->peso = pesoAresta;
@@ -172,25 +138,24 @@ void adicionar_aresta_grafo_adj(int u, int v, GrafoA *G, int **mat)
    }
 }
 
-void DFS_Visit(GrafoA *G, int s, DFS *V, int *tempo)
+void DFS_Visit(GrafoA *G, int s, DFS *V, int *caminho, int *iterator)
 {
+   //Marca o vertice como visitado
    V[s].cor = CINZA;
-   *tempo = (*tempo) + 1;
-   V[s].d = *tempo;
    NoA *z;
-   printf("%d \n",s);
+   caminho[*iterator] = s;
+   *iterator = (*iterator) + 1 ;
+   //percorre visitando seus adjacentes até que todos filhos abaixo dos adjacentes estejam visitados
    for (z = G->Adj[s]; z != NULL; z = z->next)
    {
       if (V[z->id].cor == BRANCO)
       {
          V[z->id].pai = s;
-         DFS_Visit(G, z->id, V, tempo);
+         DFS_Visit(G, z->id, V, caminho, iterator);
       }
    }
-   printf("\n");
+   //todos os adjacentes abaixo ja foram visitados então é marcado como preto para não ser visitado novamente
    V[s].cor = PRETO;
-   *tempo = (*tempo) + 1;
-   V[s].f = *tempo;
 }
 
 void Caminho_DFS(int u, DFS *V)
@@ -204,31 +169,33 @@ void Caminho_DFS(int u, DFS *V)
    printf("\n");
 }
 
-void Busca_Profundidade(GrafoA *G)
+int *Busca_Profundidade(GrafoA *G)
 {
    int u;
 
    DFS *V = (DFS *)malloc(G->V * sizeof(DFS));
-
+   //inicializa todos os vertices como não visitados
    for (u = 0; u < G->V; u++)
    {
       V[u].cor = BRANCO;
       V[u].pai = NIL;
    }
-   int tempo = 0;
+   int tempo,i = 0;
+   int *caminho = (int *) malloc (G->V * sizeof(int));
    for (u = 0; u < G->V; u++)
    {
+      //percorre os vertices os visitando caso não tenham sido visitados
       if (V[u].cor == BRANCO)
       {
-         DFS_Visit(G, u, V, &tempo);
+         DFS_Visit(G, u, V, caminho , &i);
       }
    }
-   Caminho_DFS(0, V);
+   free(V);
+   return caminho;
 }
 
-GrafoA *preencher_grafo(int **mat, int tamanho)
-{
-
+//Cria e preenche as arestas do grafo, e busca o peso das arestas de acordo com as distancia entre os vertices
+GrafoA *preencher_grafo(int **mat, int tamanho){
    GrafoA *G = criar_grafo_adj(tamanho);
    
    for (int i = 0; i < tamanho; i++)
@@ -241,13 +208,53 @@ GrafoA *preencher_grafo(int **mat, int tamanho)
          }
       }
    }
-   int *a  = Prim(G);
-   GrafoA *Ga = criar_grafo_adj(tamanho);
-   for (int i = 1; i < tamanho; ++i){
-      adicionar_aresta_grafo_adj(a[i], i, Ga, mat);
+   return G;
+}
+
+//Executa o processo de AGM, BP , Ciclo - e grava os arquivos de saida
+double executeProcess(GrafoA *G,int **mat){
+    
+  int size = G->V;
+  int *a = (int *) malloc (size * sizeof(int)); // Vetor que amazena os vertices finais da AGM
+
+  PrimMST(G,a);
+
+  int **mAux = parseAGM(a, size, mat);
+  if(!gravarArquivo("tree.txt",(size- 1)*2,2,mAux)){
+   //   printf("Arquivo Gravado com sucesso");
+  }
+  // grafo Auxiliar para arvore geradora minima e ciclo
+   GrafoA *Ga = criar_grafo_adj(size); 
+   for (int i = 1; i < size; ++i){
+      adicionar_aresta_grafo_adj(a[i], i, Ga, mat); //adiciona arestas da arvore 
       adicionar_aresta_grafo_adj(i, a[i], Ga, mat);  
    } 
-   imprimir_grafo_adj(Ga);
-   Busca_Profundidade(Ga);
-   return G;
+  double resultValue = ciclo(G,Ga,mat,mAux);
+  free(a);
+  desalocaMatriz(mAux,(size - 1)* 2 , 2);
+  liberar_grafo_adj(Ga);
+  return resultValue;
+}
+
+double ciclo(GrafoA *G,GrafoA *Ga,int **mat, int **mAux){
+   int size = Ga->V;
+   int *caminho =  Busca_Profundidade(Ga); // realiza busca em profundidade na arvore e retorna o caminho feito
+  
+  float PesoCiclo = 0;
+  //preenche a matriz auxiliar com os pontos x,y do ciclo montado ao realizar a BP e busca o somas o peso das arestas do ciclo
+  for(int i = 0; i < size - 1; i++){
+     mAux[i][0] = mat[caminho[i]][0];
+     mAux[i][1] = mat[caminho[i]][1];
+     PesoCiclo = PesoCiclo + distancia(mat,caminho[i], caminho[i+1]);
+  }
+  
+  PesoCiclo = PesoCiclo + distancia(mat,caminho[size - 1], caminho[0]);
+  mAux[size][0] = mat[0][0];
+  mAux[size][1] = mat[0][1]; 
+  if(!gravarArquivo("cycle.txt",size + 1 , 2, mAux)){
+   //   printf("Arquivo Gravado com sucesso");
+  }
+  free(caminho);
+  
+  return PesoCiclo;
 }

@@ -2,9 +2,9 @@ CC = gcc
 
 EXEC = closest
 
-SRC = alocaMatriz.c alocaString.c grafos.c heap.c copiaMatriz.c desalocaMatriz.c leArquivo.c main.c imprimir.c distancia.c
+SRC = alocaMatriz.c alocaString.c heap.c grafos.c  copiaMatriz.c gravarArquivo.c desalocaMatriz.c leArquivo.c main.c imprimir.c distancia.c
 
-OBJ = alocaMatriz.o alocaString.o grafos.o heap.o copiaMatriz.o desalocaMatriz.o leArquivo.o main.o imprimir.o distancia.o
+OBJ = alocaMatriz.o alocaString.o heap.o grafos.o copiaMatriz.o gravarArquivo.o desalocaMatriz.o leArquivo.o main.o imprimir.o distancia.o
 
 all: $(EXEC)
 	@echo " "

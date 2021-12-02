@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "referenceprim": "c"
+        "referenceprim": "c",
+        "libstrabalho.h": "c",
+        "libheap.h": "c"
     }
 }

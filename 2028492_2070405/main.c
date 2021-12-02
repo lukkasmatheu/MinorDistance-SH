@@ -11,16 +11,14 @@ Julio Cesar Rogacheski
 int main(int argc, char *argv[])
 {
 
-   printf("iniciando");
    clock_t start, end;
    double elapsed_time;
    srand(time(NULL));
    int lin, col;
+   
    char *nomeArqFisico;
    int **mat;
    GrafoA *grafo;
-
-   
 
    if (argc != 2)
    {
@@ -43,11 +41,12 @@ int main(int argc, char *argv[])
 
    grafo = preencher_grafo(mat, lin);
 
+   
    start = clock();
-
+   double result =  executeProcess(grafo,mat);
    end = clock();
    elapsed_time = (end - start) / (double)CLOCKS_PER_SEC;
-   //   printf("Tempo decorrido: %lf Distancia Minima: %lf Pontos no plano x1: %lf y1: %lf x2:%lf y2:%lf \n", elapsed_time, minorDistance, mat[first][0], mat[first][1], mat[second][0], mat[second][1]);
+   printf("%lf %lf\n",elapsed_time,result);
    liberar_grafo_adj(grafo);
    free(nomeArqFisico);
    desalocaMatriz(mat, lin, col);
